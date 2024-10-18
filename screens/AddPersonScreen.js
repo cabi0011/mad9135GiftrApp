@@ -1,63 +1,68 @@
-import React, { useContext, useState } from "react";
-import { View, TextInput, Button, Modal, Text, KeyboardAvoidingView, Platform } from "react-native";
-import PeopleContext from "../PeopleContext";
+import React, { useContext, useState, useRef, useEffect } from "react";
+import { View, Text, KeyboardAvoidingView, Platform, Dimensions, TouchableOpacity } from "react-native";
 import { useNavigation } from "@react-navigation/native";
-import { DatePicker } from 'react-native-modern-datepicker';
+import { Camera } from 'expo-camera';
+import { Button, Input, Card } from 'react-native-elements';
+import DateTimePicker from '@react-native-community/datetimepicker';
+import PeopleContext from "../PeopleContext";
 
 export default function AddPersonScreen() {
-  const [name, setName] = useState("");
-  const [dob, setDob] = useState("");
-  const [error, setError] = useState("");
-  const { addPerson } = useContext(PeopleContext);
   const navigation = useNavigation();
+  const { addPerson } = useContext(PeopleContext);
+  const [name, setName] = useState("");
+  const [dob, setDob] = useState(new Date());
+  const [showDatePicker, setShowDatePicker] = useState(false);
+  const [hasPermission, setHasPermission] = useState(null);
+  const cameraRef = useRef(null);
+  const aspectRatio = 2 / 3;
+  const screenWidth = Dimensions.get('window').width;
+  const imageWidth = screenWidth * 0.6; // 60% of screen width
+  const imageHeight = imageWidth * aspectRatio;
 
-  const savePerson = () => {
-    if (name && dob) {
-      try {
-        addPerson(name, dob);
-        navigation.goBack();
-      } catch (e) {
-        setError("Failed to save person. Please try again.");
-      }
-    } else {
-      setError("Name and date of birth are required.");
+  useEffect(() => {
+    (async () => {
+      const { status } = await Camera.requestCameraPermissionsAsync();
+      setHasPermission(status === 'granted');
+    })();
+  }, []);
+
+  const handleAddPerson = () => {
+    addPerson(name, dob.toISOString().split('T')[0]); // Format date as YYYY-MM-DD
+    navigation.navigate("People");
+  };
+
+  const handleDateChange = (event, selectedDate) => {
+    setShowDatePicker(false); // Hide the date picker after selecting a date
+    if (selectedDate) {
+      setDob(selectedDate);
     }
   };
 
   return (
-    <KeyboardAvoidingView
-      behavior={Platform.OS === "ios" ? "padding" : "height"}
-      style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}
-    >
-      <View>
-        <TextInput
-          placeholder="Name"
-          value={name}
-          onChangeText={setName}
-          style={{ marginBottom: 20, borderBottomWidth: 1, width: 200 }}
-        />
-        <DatePicker
-          mode="calendar"
-          onDateChange={setDob}
-          selected={dob}
-          style={{ marginBottom: 20, width: 200 }}
-        />
-        <Button title="Save" onPress={savePerson} />
-        <Button title="Cancel" onPress={() => navigation.goBack()} />
+    <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"} style={{ flex: 1 }}>
+      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+        <Card>
+          <Card.Title>Add New Person</Card.Title>
+          <Card.Divider />
+          <Input placeholder="Name" value={name} onChangeText={setName} />
+          <TouchableOpacity onPress={() => setShowDatePicker(true)}>
+            <Input
+              placeholder="Date of Birth"
+              value={dob.toISOString().split('T')[0]} // Display date as YYYY-MM-DD
+              editable={false}
+            />
+          </TouchableOpacity>
+          {showDatePicker && (
+            <DateTimePicker
+              value={dob}
+              mode="date"
+              display="default"
+              onChange={handleDateChange}
+            />
+          )}
+          <Button title="Add Person" onPress={handleAddPerson} />
+        </Card>
       </View>
-      <Modal
-        visible={!!error}
-        transparent={true}
-        animationType="slide"
-        onRequestClose={() => setError("")}
-      >
-        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0,0,0,0.5)' }}>
-          <View style={{ width: 300, padding: 20, backgroundColor: 'white', borderRadius: 10 }}>
-            <Text>{error}</Text>
-            <Button title="Close" onPress={() => setError("")} />
-          </View>
-        </View>
-      </Modal>
     </KeyboardAvoidingView>
   );
 }

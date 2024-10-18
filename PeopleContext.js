@@ -16,7 +16,6 @@ export const PeopleProvider = ({ children }) => {
       if (savedPeople) setPeople(JSON.parse(savedPeople));
     };
     loadPeople();
-    console.log(people);
   }, []);
 
   const addPerson = async (name, dob) => {
@@ -24,15 +23,27 @@ export const PeopleProvider = ({ children }) => {
       id: randomUUID(),
       name,
       dob,
+      ideas: [], // Initialize with an empty ideas array
     };
     const updatedPeople = [...people, newPerson];
-    console.log(updatedPeople);
+    setPeople(updatedPeople);
+    await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(updatedPeople));
+  };
+
+  const addIdea = async (personId, idea) => {
+    const updatedPeople = people.map((person) => {
+      if (person.id === personId) {
+        const newIdea = { id: randomUUID(), ...idea };
+        return { ...person, ideas: [...person.ideas, newIdea] };
+      }
+      return person;
+    });
     setPeople(updatedPeople);
     await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(updatedPeople));
   };
 
   return (
-    <PeopleContext.Provider value={{ people, addPerson }}>
+    <PeopleContext.Provider value={{ people, addPerson, addIdea }}>
       {children}
     </PeopleContext.Provider>
   );

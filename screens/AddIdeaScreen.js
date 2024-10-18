@@ -2,11 +2,11 @@ import React, { useContext, useState, useRef, useEffect } from "react";
 import { View, Text, KeyboardAvoidingView, Platform, Dimensions, Image } from "react-native";
 import { useNavigation, useRoute } from "@react-navigation/native";
 import { Camera } from 'expo-camera';
-import PeopleContext from "../PeopleContext";
 import { Button, Input, Card } from 'react-native-elements';
+import PeopleContext from "../PeopleContext"; 
 import PeopleScreen from "./PeopleScreen";
 import AddPersonScreen from "./AddPersonScreen";
-import AddIdeaScreen from "./AddIdeaScreen"; 
+import IdeaScreen from "./IdeaScreen"; 
 
 export default function AddIdeaScreenComponent() {
   const navigation = useNavigation();

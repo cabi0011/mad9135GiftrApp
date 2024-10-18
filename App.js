@@ -1,14 +1,18 @@
-import { StyleSheet, Text, View } from "react-native";
+import React from 'react';
+import { StyleSheet, View } from "react-native";
+import { ThemeProvider } from 'react-native-elements';
 import AppNavigator from "./AppNavigator";
 import { PeopleProvider } from "./PeopleContext";
 
 export default function App() {
   return (
-    <View style={styles.container}>
-      <PeopleProvider>
-        <AppNavigator />
-      </PeopleProvider>
-    </View>
+    <ThemeProvider>
+      <View style={styles.container}>
+        <PeopleProvider>
+          <AppNavigator />
+        </PeopleProvider>
+      </View>
+    </ThemeProvider>
   );
 }
 
