@@ -1,86 +1,110 @@
-import React, { useContext, useState, useRef, useEffect } from "react";
-import { View, Text, KeyboardAvoidingView, Platform, Dimensions, Image } from "react-native";
+import React, { useContext, useState, useEffect } from "react";
+import { View, Text, FlatList, StyleSheet, Alert, Dimensions } from "react-native";
 import { useNavigation, useRoute } from "@react-navigation/native";
-import { Camera } from 'expo-camera';
+import { Button, Card, FAB, Image } from 'react-native-elements';
 import PeopleContext from "../PeopleContext";
-import { Button, Input, Card } from 'react-native-elements';
-import PeopleScreen from "./PeopleScreen";
-import AddPersonScreen from "./AddPersonScreen";
-import AddIdeaScreen from "./AddIdeaScreen"; 
 
-export default function AddIdeaScreenComponent() {
+const IdeaScreen = () => {
   const navigation = useNavigation();
   const route = useRoute();
   const { id } = route.params;
-  const { addIdea } = useContext(PeopleContext);
-  const [name, setName] = useState("");
-  const [image, setImage] = useState(null);
-  const [hasPermission, setHasPermission] = useState(null);
-  const cameraRef = useRef(null);
+  const { people, getIdeasForPerson, removeIdea } = useContext(PeopleContext);
+  const [ideas, setIdeas] = useState([]);
+  const person = people.find(p => p.id === id);
   const aspectRatio = 2 / 3;
   const screenWidth = Dimensions.get('window').width;
-  const imageWidth = screenWidth * 0.6; // 60% of screen width
+  const imageWidth = screenWidth * 0.2; // 20% of screen width
   const imageHeight = imageWidth * aspectRatio;
 
-  const requestCameraPermission = async () => {
-    const { status } = await Camera.requestPermissionsAsync();
-    setHasPermission(status === 'granted');
-  };
-
-  const takePicture = async () => {
-    if (cameraRef.current) {
-      const options = { quality: 1, base64: true, exif: false };
-      const photo = await cameraRef.current.takePictureAsync(options);
-      setImage(photo.uri);
-    }
-  };
-
-  const saveIdea = () => {
-    if (name && image) {
-      addIdea(id, { name, image, width: imageWidth, height: imageHeight });
-      navigation.navigate("IdeaScreen", { id });
-    } else {
-      alert("Both name and image are required.");
-    }
-  };
-
-  const cancel = () => {
-    navigation.navigate("IdeaScreen", { id });
-  };
-
   useEffect(() => {
-    requestCameraPermission();
-  }, []);
+    const fetchIdeas = async () => {
+      const ideasList = await getIdeasForPerson(id);
+      setIdeas(ideasList);
+    };
+    fetchIdeas();
+  }, [id, ideas]);
 
-  if (hasPermission === null) {
-    return <View />;
-  }
-  if (hasPermission === false) {
-    return <Text>No access to camera</Text>;
-  }
+  const handleRemoveIdea = async (ideaId) => {
+    try {
+      await removeIdea(id, ideaId);
+      const updatedIdeas = await getIdeasForPerson(id);
+      setIdeas(updatedIdeas);
+    } catch (error) {
+      Alert.alert("Error", "Failed to remove idea. Please try again.");
+    }
+  };
+
+  const renderIdea = ({ item }) => (
+    // console.log(item, "Checking items here" )
+    <Card containerStyle={styles.card}>
+      <View style={styles.ideaContainer}>
+        <Image source={{ uri: item.image }} style={{ width: imageWidth, height: imageHeight }} />
+        <Text style={styles.ideaText}>{item.text}</Text>
+        <Button
+          title="Delete"
+          onPress={() => handleRemoveIdea(item.id)}
+          buttonStyle={styles.deleteButton}
+        />
+      </View>
+    </Card>
+  );
 
   return (
-    <KeyboardAvoidingView
-      behavior={Platform.OS === "ios" ? "padding" : "height"}
-      style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}
-    >
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-        <Input
-          placeholder="Gift Idea Name"
-          value={name}
-          onChangeText={setName}
-          containerStyle={{ marginBottom: 20, width: 200 }}
+    <View style={styles.container}>
+      <Text style={styles.heading}>{person.name}'s Gift Ideas</Text>
+      {ideas.length === 0 ? (
+        <Text style={styles.emptyMessage}>No ideas yet. Add an idea!</Text>
+      ) : (
+        <FlatList
+          data={ideas}
+          keyExtractor={(item) => item.id}
+          renderItem={renderIdea}
         />
-        <Camera
-          style={{ width: imageWidth, height: imageHeight }}
-          type={Camera.Constants.Type.back}
-          ref={cameraRef}
-        />
-        <Button title="Take Picture" onPress={takePicture} containerStyle={{ marginVertical: 10 }} />
-        {image && <Image source={{ uri: image }} style={{ width: imageWidth, height: imageHeight }} />}
-        <Button title="Save" onPress={saveIdea} containerStyle={{ marginVertical: 10 }} />
-        <Button title="Cancel" onPress={cancel} type="outline" containerStyle={{ marginVertical: 10 }} />
-      </View>
-    </KeyboardAvoidingView>
+      )}
+      <FAB
+        style={styles.fab}
+        icon={{ name: 'add', color: 'white' }}
+        onPress={() => navigation.navigate("AddIdeaScreen", { id })}
+      />
+    </View>
   );
-}
+};
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    padding: 10,
+  },
+  heading: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    marginBottom: 10,
+  },
+  emptyMessage: {
+    fontSize: 18,
+    textAlign: 'center',
+    marginTop: 20,
+  },
+  card: {
+    marginBottom: 10,
+  },
+  ideaContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  ideaText: {
+    flex: 1,
+    marginLeft: 10,
+  },
+  deleteButton: {
+    backgroundColor: 'red',
+  },
+  fab: {
+    position: 'absolute',
+    margin: 16,
+    right: 0,
+    bottom: 0,
+  },
+});
+
+export default IdeaScreen;
