@@ -1,7 +1,7 @@
 import React, { useContext } from "react";
 import { View, FlatList, StyleSheet, Alert, Dimensions } from "react-native";
 import { useNavigation } from "@react-navigation/native";
-import { Card, Text, Button, FAB } from 'react-native-elements';
+import { Card, Text, Button, FAB, Icon } from 'react-native-elements';
 import { Swipeable } from 'react-native-gesture-handler';
 import PeopleContext from "../PeopleContext";
 
@@ -29,9 +29,24 @@ const PeopleScreen = () => {
   const renderPerson = ({ item }) => (
     <Swipeable renderRightActions={() => renderRightActions(item.id)}>
       <Card containerStyle={styles.card}>
-        <Card.Title>{item.name}</Card.Title>
+      <View style={styles.cardHeader}>
+          <Card.Title style={styles.cardTitle}>{item.name}</Card.Title>
+          <Icon
+            name="person"
+            type="material"
+            color="#517fa4"
+            containerStyle={styles.icon}
+          />
+        </View>
+        {/* <Card.Title>{item.name}</Card.Title>
+        <Icon
+          name="person"
+          type="material"
+          color="#517fa4"
+          containerStyle={styles.icon}
+        /> */}
         <Card.Divider />
-        <Text>Date of Birth: {item.dob}</Text>
+        <Text>Birthday: {item.dob}</Text>
         <Button
           title="View Ideas"
           onPress={() => navigation.navigate("IdeaScreen", { id: item.id })}
@@ -64,6 +79,17 @@ const styles = StyleSheet.create({
   },
   card: {
     marginBottom: 10,
+  },
+  cardHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  cardTitle: {
+    flex: 1,
+  },
+  icon: {
+    marginLeft: 10,
   },
   button: {
     backgroundColor: 'blue',

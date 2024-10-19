@@ -1,5 +1,5 @@
 import React, { useContext, useState, useRef, useEffect } from "react";
-import { View, Text, KeyboardAvoidingView, Platform, Dimensions, Image } from "react-native";
+import { View, Text, KeyboardAvoidingView, Platform, Dimensions, Image, StyleSheet } from "react-native";
 import { useNavigation, useRoute } from "@react-navigation/native";
 import { Camera, CameraView } from 'expo-camera';
 import { Button, Input, Card } from 'react-native-elements';
@@ -70,7 +70,9 @@ export default function AddIdeaScreen() {
                 ) : hasPermission === false ? (
                   <Text>No access to camera</Text>
                 ) : (
-                  <CameraView style={{ width: imageWidth, height: imageHeight }} ref={cameraRef}>
+                  // <CameraView style={{ width: imageWidth, height: imageHeight }} ref={cameraRef}>
+                  // <CameraView style={styles.camera} ref={cameraRef}>
+                  <CameraView style={{ width: imageWidth, height: imageHeight }} ref={cameraRef}>  
                     <Button title="Take Picture" onPress={takePicture} />
                   </CameraView>
                 )}
@@ -91,3 +93,17 @@ export default function AddIdeaScreen() {
     </KeyboardAvoidingView>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    justifyContent: "center",
+  },
+  message: {
+    textAlign: "center",
+    paddingBottom: 10,
+  },
+  camera: {
+    flex: 1,
+  },
+});

@@ -26,6 +26,7 @@ export const PeopleProvider = ({ children }) => {
       ideas: [], 
     };
     const updatedPeople = [...people, newPerson];
+    updatedPeople.sort((a,b) => new Date(a.dob) - new Date(b.dob))
     setPeople(updatedPeople);
     await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(updatedPeople));
   };
@@ -37,38 +38,83 @@ export const PeopleProvider = ({ children }) => {
   }
 
   const addIdea = async (personId, idea) => {
-    // console.log("addIdea called with personId:", personId, "and idea:");
+    console.log("addIdea called with personId:", personId, "and idea:", idea); // Log function call
 
     const person = people.find((person) => person.id === personId);
-    console.log(person, "This is a person");
-
+    if (!person) {
+      console.error("Person not found");
+      return;
+    }
+    const newIdea = { id: randomUUID(), ...idea };
     const updatedPerson = {
       ...person,
-      ideas: [...(person.ideas || [], idea)],
+      ideas: [...(person.ideas || []), newIdea], // Correctly spread the ideas array
     };
-
-    console.log(updatedPerson, "Checkpoint 2");
-
-    const updatedPeople = people.map((person) => person.id === personId ? updatedPerson : person)
-    console.log(updatedPeople, "Checkpoint 3");
-    // const updatedPeople = people.map((person) => {
-    //   if (person.id === personId) {
-    //     const newIdea = { id: randomUUID(), ...idea };
-    //     // console.log("Adding new idea:", newIdea, "to person:", person.name); // Log new idea and person
-    //     return { ...person, ideas: [...person.ideas, newIdea] };
-    //   }
-    //   return person;
-    // });
-    // console.log("Updated people array:", updatedPeople); // Log updated people array
+    const updatedPeople = people.map((person) =>
+      person.id === personId ? updatedPerson : person
+    );
     setPeople(updatedPeople);
     await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(updatedPeople));
-    // console.log("People saved to AsyncStorage"); // Log save to AsyncStorage
   };
+
+  const removeIdea = async (personId, ideaId) => {
+    console.log("removeIdea called with personId:", personId, "and ideaId:", ideaId); // Log function call
+
+    const person = people.find((person) => person.id === personId);
+    if (!person) {
+      console.error("Person not found");
+      return;
+    }
+    const updatedPerson = {
+      ...person,
+      ideas: person.ideas.filter((idea) => idea.id !== ideaId),
+    };
+    const updatedPeople = people.map((person) =>
+      person.id === personId ? updatedPerson : person
+    );
+    setPeople(updatedPeople);
+    await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(updatedPeople));
+  }
+  
+
+  // const addIdea = async (personId, idea) => {
+  //   try{
+
+  //     // console.log("addIdea called with personId:", personId, "and idea:");
+      
+  //     const person = people.find((person) => person.id === personId);
+  //     console.log(person, "This is a person");
+      
+  //     const updatedPerson = {
+  //       ...person,
+  //       ideas: [...(person.ideas || [], idea)],
+  //     };
+      
+      // console.log(updatedPerson, "Checkpoint 2");
+      
+      // const updatedPeople = people.map((person) => person.id === personId ? updatedPerson : person)
+      // console.log(updatedPeople, "Checkpoint 3");
+      // const updatedPeople = people.map((person) => {
+        //   if (person.id === personId) {
+          //     const newIdea = { id: randomUUID(), ...idea };
+          //     // console.log("Adding new idea:", newIdea, "to person:", person.name); // Log new idea and person
+          //     return { ...person, ideas: [...person.ideas, newIdea] };
+          //   }
+          //   return person;
+          // });
+          // console.log("Updated people array:", updatedPeople); // Log updated people array
+        //   setPeople(updatedPeople);
+        //   await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(updatedPeople));
+        // } catch(err){
+        //   console.log("ErrorUpdatingGift",err)
+        // }
+    // console.log("People saved to AsyncStorage"); // Log save to AsyncStorage
+  // };
 
 
 
   return (
-    <PeopleContext.Provider value={{ people, setPeople, addPerson, addIdea, removePerson }}>
+    <PeopleContext.Provider value={{ people, setPeople, addPerson, addIdea, removePerson, removeIdea }}>
       {children}
     </PeopleContext.Provider>
   );
