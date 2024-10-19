@@ -1,21 +1,20 @@
-import React, { useContext } from "react";
-import { View, FlatList, StyleSheet, Alert, Dimensions } from "react-native";
+import React, { useContext, useState } from "react";
+import { View, FlatList, StyleSheet, TouchableOpacity } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { Card, Text, Button, FAB, Icon } from 'react-native-elements';
 import { Swipeable } from 'react-native-gesture-handler';
 import PeopleContext from "../PeopleContext";
+import CustomModal from "../components/customModal";
 
 const PeopleScreen = () => {
   const { people, setPeople, removePerson } = useContext(PeopleContext);
   const navigation = useNavigation();
+  const [modalVisible, setModalVisible] = useState(false);
+  const [idDeleted, setIdDeleted] = useState(null);
 
   const handleRemovePerson = async (id) => {
-    try {
-      await removePerson(id);
-      
-    } catch (error) {
-      Alert.alert("Error", "Failed to remove person. Please try again.");
-    }
+    setModalVisible(true);
+    setIdDeleted(id);
   };
 
   const renderRightActions = (id) => (
@@ -28,32 +27,27 @@ const PeopleScreen = () => {
 
   const renderPerson = ({ item }) => (
     <Swipeable renderRightActions={() => renderRightActions(item.id)}>
-      <Card containerStyle={styles.card}>
-      <View style={styles.cardHeader}>
+    <Card style={styles.card}>
+        <View style={styles.cardContent}>
+          <View style={styles.cardHeader}>
           <Card.Title style={styles.cardTitle}>{item.name}</Card.Title>
-          <Icon
-            name="person"
-            type="material"
-            color="#517fa4"
-            containerStyle={styles.icon}
-          />
+          <Text>Birthday: {item.dob}</Text>
+          </View>
+
+        <View>
+          <TouchableOpacity onPress={() => navigation.navigate("IdeaScreen", { id: item.id, name: item.name })}>
+            <Icon
+              name="person"
+              type="material"
+              color="#517fa4"
+              size={40} 
+              containerStyle={styles.icon}
+            />
+          </TouchableOpacity>
         </View>
-        {/* <Card.Title>{item.name}</Card.Title>
-        <Icon
-          name="person"
-          type="material"
-          color="#517fa4"
-          containerStyle={styles.icon}
-        /> */}
-        <Card.Divider />
-        <Text>Birthday: {item.dob}</Text>
-        <Button
-          title="View Ideas"
-          onPress={() => navigation.navigate("IdeaScreen", { id: item.id })}
-          buttonStyle={styles.button}
-        />
-      </Card>
-    </Swipeable>
+        </View>
+    </Card>
+  </Swipeable>
   );
 
   return (
@@ -63,11 +57,18 @@ const PeopleScreen = () => {
         keyExtractor={(item) => item.id}
         renderItem={renderPerson}
       />
-      <FAB
-        style={styles.fab}
-        icon={{ name: 'add', color: 'white' }}
-        onPress={() => navigation.navigate("AddPerson")}
-      />
+            <CustomModal
+        visible={modalVisible}
+        message="Are you sure you want to delete this person?"
+        onClose={() => setModalVisible(false)}
+        onDelete={async () => {
+          if (idDeleted) {
+            await removePerson(idDeleted);
+            setModalVisible(false);
+            setIdDeleted(null);
+          }
+        }}
+      /> 
     </View>
   );
 };
@@ -81,12 +82,16 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   cardHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: 'column',
+  },
+  cardContent: {
+   flexDirection: 'row',
     justifyContent: 'space-between',
+    alignItems: 'center',
   },
   cardTitle: {
-    flex: 1,
+    fontSize: 18,
+    fontWeight: 'bold',
   },
   icon: {
     marginLeft: 10,
@@ -98,12 +103,6 @@ const styles = StyleSheet.create({
   deleteButton: {
     backgroundColor: 'red',
     marginTop: 10,
-  },
-  fab: {
-    position: 'absolute',
-    margin: 16,
-    right: 0,
-    bottom: 0,
   },
 });
 
