@@ -90,7 +90,7 @@ const styles = StyleSheet.create({
     marginLeft: 10,
   },
   deleteButton: {
-    backgroundColor: 'red',
+    backgroundColor: '#C62E2E',
   },
 });
 

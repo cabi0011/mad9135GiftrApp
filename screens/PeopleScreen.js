@@ -99,11 +99,11 @@ const styles = StyleSheet.create({
     marginLeft: 10,
   },
   button: {
-    backgroundColor: 'blue',
+    backgroundColor: '#0D92F4',
     marginTop: 10,
   },
   deleteButton: {
-    backgroundColor: 'red',
+    backgroundColor: '#C62E2E',
     marginTop: 10,
   },
 });

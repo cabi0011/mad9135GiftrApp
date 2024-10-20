@@ -115,7 +115,6 @@ const styles = StyleSheet.create({
     width: '90%',
   },
   cameraContainer: {
-    // flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -139,6 +138,7 @@ const styles = StyleSheet.create({
     padding: 10,
   },
   button: {
+    backgroundColor: '#0D92F4',
     padding: 10,
   },
   takePictureButton: {
