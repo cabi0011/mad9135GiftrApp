@@ -18,11 +18,13 @@ const PeopleScreen = () => {
   };
 
   const renderRightActions = (id) => (
-    <Button
+    // <View style={styles.deleteButtonContainer}>
+      <Button
       title="Delete"
       onPress={() => handleRemovePerson(id)}
       buttonStyle={styles.deleteButton}
-    />
+      />
+    // </View>
   );
 
   const renderPerson = ({ item }) => (

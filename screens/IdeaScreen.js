@@ -25,7 +25,6 @@ const IdeaScreen = () => {
 
   const handleRemoveIdea = async (ideaId) => {
     try {
-      console.log("Removing idea with id:", ideaId);
       await removeIdea(id, ideaId);
       const updatedIdeas = people.find((person) => person.id === id).ideas;
       setIdeas(updatedIdeas);

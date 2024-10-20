@@ -1,7 +1,7 @@
 import React from 'react';
 import { Modal, View, Text, Button, StyleSheet } from 'react-native';
 
-const CustomModal = ({ visible, type, message, onClose, onDelete }) => {
+const CustomModal = ({ visible, type, message, onClose, onDelete, showDeleteButton=true }) => {
   return (
     <Modal
       animationType="slide"
@@ -12,7 +12,8 @@ const CustomModal = ({ visible, type, message, onClose, onDelete }) => {
       <View style={styles.centeredView}>
         <View style={styles.modalView}>
           <Text style={styles.modalText}>{message}</Text>
-          <Button title="Delete" onPress={onDelete} />
+
+          {showDeleteButton && <Button title="Delete" onPress={onDelete} />}
           <Button title="Close" onPress={onClose} />
         </View>
       </View>

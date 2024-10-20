@@ -4,8 +4,8 @@ import { createStackNavigator } from "@react-navigation/stack";
 import { NavigationContainer } from "@react-navigation/native";
 import PeopleScreen from "./screens/PeopleScreen";
 import AddPersonScreen from "./screens/AddPersonScreen";
-import IdeaScreen from "./screens/IdeaScreen"; // Import IdeaScreen
-import AddIdeaScreen from "./screens/AddIdeaScreen"; // Import AddIdeaScreen
+import IdeaScreen from "./screens/IdeaScreen";
+import AddIdeaScreen from "./screens/AddIdeaScreen";
 import { PeopleProvider } from "./PeopleContext"; 
 
 const Stack = createStackNavigator();

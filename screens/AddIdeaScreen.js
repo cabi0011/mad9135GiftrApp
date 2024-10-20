@@ -35,21 +35,23 @@ export default function AddIdeaScreen() {
   };
 
   const handleSaveIdea = async () => {
-    if (!text || !image) {
+    if (!text && !image) {
       setModalMessage("Please add a description and an image.");
       setModalVisible(true);
       return;
     }
-    if (! text) {
+
+    if (!text) {
       setModalMessage("Please add a description.");
       setModalVisible(true);
       return;
     }
-    if (! image) {
+    if (!image) {
       setModalMessage("Please add an image.");
       setModalVisible(true);
       return;
     }
+    
     try {
       await addIdea(id, { text, image, width: imageWidth, height: imageHeight });
       navigation.navigate("People", { id });
@@ -90,15 +92,16 @@ export default function AddIdeaScreen() {
             )}
           </KeyboardAvoidingView>
           <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"}>
-          <View >
-                      <Button title="Take Picture" onPress={takePicture} />
-                      </View>
-            <Button title="Save" onPress={handleSaveIdea} />
-            <Button title="Cancel" onPress={() => navigation.navigate("People", { id })} />
+          <View style={styles.cameraButtonContainer}>
+              <Button title="Take Picture" onPress={takePicture} buttonStyle={styles.takePictureButton}/>
+            </View>
+            <Button title="Save" onPress={handleSaveIdea} containerStyle={styles.button} />
+            <Button title="Cancel" onPress={() => navigation.navigate("People", { id })} containerStyle={styles.button} />
           </KeyboardAvoidingView>
         </Card>
       </View>
       <CustomModal
+        showDeleteButton={false}
         visible={modalVisible}
         message={modalMessage}
         onClose={() => setModalVisible(false)}
@@ -116,16 +119,11 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  cameraButtonContainer: {
-    flex: 1,
-    justifyContent: 'flex-end',
-    alignItems: 'center',
-    paddingBottom: 10,
-  },
-  // takePictureButton: {
-  //   position: 'absolute',
-  //   bottom: 10,
-  //   alignSelf: 'center',
+  // cameraButtonContainer: {
+  //   flex: 1,
+  //   justifyContent: 'flex-end',
+  //   alignItems: 'center',
+  //   paddingBottom: 10,
   // },
   container: {
     flex: 1,
@@ -135,5 +133,17 @@ const styles = StyleSheet.create({
     textAlign: "center",
     paddingBottom: 10,
   },
+  buttonContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    padding: 10,
+  },
+  button: {
+    padding: 10,
+  },
+  takePictureButton: {
+    marginTop: 10,
+  },
+
 
 });
